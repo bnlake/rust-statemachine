@@ -8,6 +8,11 @@ struct BottleFillingMachine<S> {
 struct Waiting {
     waiting_time: std::time::Duration,
 }
+impl From<BottleFillingMachine<Done>> for BottleFillingMachine<Waiting> {
+    fn from(value: BottleFillingMachine<Done>) -> Self {
+        BottleFillingMachine::new(0)
+    }
+}
 impl BottleFillingMachine<Waiting> {
     pub fn new(shared_value: usize) -> Self {
         BottleFillingMachine {
@@ -41,7 +46,45 @@ impl From<BottleFillingMachine<Filling>> for BottleFillingMachine<Done> {
     }
 }
 
+// These enum values are not to be confused with the
+// various state structs
+enum BottleFillingMachineWrapper {
+    Waiting(BottleFillingMachine<Waiting>),
+    Filling(BottleFillingMachine<Filling>),
+    Done(BottleFillingMachine<Done>),
+}
+impl BottleFillingMachineWrapper {
+    pub fn step(mut self) -> Self {
+        match self {
+            BottleFillingMachineWrapper::Waiting(val) => {
+                BottleFillingMachineWrapper::Filling(val.into())
+            }
+            BottleFillingMachineWrapper::Filling(val) => {
+                BottleFillingMachineWrapper::Done(val.into())
+            }
+            BottleFillingMachineWrapper::Done(val) => {
+                BottleFillingMachineWrapper::Waiting(val.into())
+            }
+        }
+    }
+}
+
+struct BottleFillingMachineFactory {
+    bottle_filling_machine: BottleFillingMachineWrapper,
+}
+impl BottleFillingMachineFactory {
+    pub fn new() -> Self {
+        BottleFillingMachineFactory {
+            bottle_filling_machine: BottleFillingMachineWrapper::Waiting(
+                BottleFillingMachine::new(0),
+            ),
+        }
+    }
+}
+
 fn main() {
-    let in_waiting = BottleFillingMachine::<Waiting>::new(0);
-    let in_filling = BottleFillingMachine::<Filling>::from(in_waiting);
+    let mut state_machine_factory = BottleFillingMachineFactory::new();
+
+    state_machine_factory.bottle_filling_machine =
+        state_machine_factory.bottle_filling_machine.step();
 }
