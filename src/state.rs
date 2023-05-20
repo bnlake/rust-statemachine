@@ -45,3 +45,15 @@ impl State {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*; // bring anything in this file into scope
+
+    #[test]
+    fn new_state_is_waiting() {
+        let expected = State::Waiting { waiting_time: 0 };
+        let new_state = State::new();
+        assert_eq!(new_state, expected);
+    }
+}
