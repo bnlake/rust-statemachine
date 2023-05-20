@@ -1,7 +1,5 @@
 // @url https://play.rust-lang.org/?version=stable&mode=debug&edition=2015&gist=ee3e4df093c136ced7b394dc7ffb78e1
 
-use std::clone;
-
 #[derive(Debug, PartialEq)]
 enum State {
     Waiting { waiting_time: u8 },
@@ -74,6 +72,7 @@ fn main() {
         print!("-- Transitioning from {:?}", state);
         state = state.next(event);
         print!(" into {:?}", state);
+        println!();
         state.run();
     }
 }
